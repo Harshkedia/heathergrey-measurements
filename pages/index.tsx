@@ -92,37 +92,59 @@ export default function Home() {
         )}
         <div
           className={`${
-            step === 2 ? "h-full w-[95%] pb-2" : "w-4/5"
+            step === 2 ? "h-full w-[95%] pb-2" : "w-[85%] pb-8"
           } flex flex-col gap-6 relative overflow-auto`}
         >
           {step === 1 ? (
-            <div className="w-full h-full py-12 flex gap-8">
-              <div className="w-[40%] h-full overflow-y-auto">
-                <div className="flex flex-col gap-y-4">
-                  {Object.values(people).map((p: any, idx: number) => (
-                    <div
-                      className={`px-6 py-8 flex flex-col gap-5 w-full ${
-                        person === p.name ? "bg-white" : "bg-gray-100"
-                      }`}
-                      key={idx}
-                      onClick={() => setPerson(p.name)}
-                    >
-                      <h3 className="text-xl font-light text-[#DB302B]">
-                        {p.name}
-                      </h3>
-                      <p className="uppercase text-sm">{p.gender}</p>
-                      <p className="uppercase text-sm">{p.department}</p>
-                      <p className="uppercase text-sm">{p.designation}</p>
-                    </div>
-                  ))}
+            <div className="w-full h-full pt-8 flex gap-8">
+              <div className="flex flex-col w-[40%] gap-6">
+                <div className="w-full h-[48%]">
+                  <div className="flex flex-col gap-y-4 overflow-y-auto max-h-[90%]">
+                    {Object.values(people).map((p: any, idx: number) => (
+                      <div
+                        className={`px-6 py-8 flex flex-col gap-5 w-full ${
+                          person === p.name ? "bg-white" : "bg-gray-100"
+                        }`}
+                        key={idx}
+                        onClick={() => setPerson(p.name)}
+                      >
+                        <h3 className="text-xl font-light text-[#DB302B]">
+                          {p.name}
+                        </h3>
+                        <p className="uppercase text-sm">{p.gender}</p>
+                        <p className="uppercase text-sm">{p.department}</p>
+                        <p className="uppercase text-sm">{p.designation}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p
+                    className="text-[#DB302B] flex items-center gap-x-1 mt-4 cursor-pointer text-sm"
+                    onClick={() => setOpen(true)}
+                  >
+                    <AiOutlinePlus className="h-4 w-4" />
+                    Add a person
+                  </p>
                 </div>
-                <p
-                  className="text-[#DB302B] flex items-center gap-x-1 mt-4 cursor-pointer text-sm"
-                  onClick={() => setOpen(true)}
-                >
-                  <AiOutlinePlus className="h-4 w-4" />
-                  Add a person
-                </p>
+                <div className="">
+                  <h3 className="text-xl text-[#DB302B] tracking-wide capitalize">
+                    upload measurement using AI generated tool.
+                    <span className="ml-2 rounded-full p-1 bg-[#DB302B] text-white text-[10px]">
+                      Coming Soon!
+                    </span>
+                  </h3>
+                  <div className="flex pt-2">
+                    <img
+                      src="/ai.png"
+                      alt=""
+                      className="w-[60%] object-contain"
+                    />
+                    <p className="opacity-70 text-[13px]">
+                      Open your device camera. Press the record button. Wait for
+                      2 minutes in front of the screen. The sizes will appear in
+                      the Measurement box on your left.
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="flex flex-col gap-y-6 !h-full">
                 <div className="bg-white p-6 h-[20%]">
@@ -141,7 +163,16 @@ export default function Home() {
                     <p>
                       Measurement <br /> (Sizes in Inches)
                     </p>
-                    <p>Enter manually</p>
+                    <div className="flex items-center gap-8">
+                      <p>
+                        Enter <br />
+                        manually
+                      </p>
+                      <p>
+                        AI <br />
+                        Generated
+                      </p>
+                    </div>
                   </div>
                   <div className="flex flex-col gap-y-3 max-h-[70%] overflow-y-auto">
                     {Object.keys(measurements)

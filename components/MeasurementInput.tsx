@@ -20,10 +20,10 @@ export const MeasurementInput = ({
 
   return (
     <div className="flex gap-4 items-center">
-      <div className="w-[320px] relative">
+      <div className="w-[220px] relative">
         <Listbox value={selected} onChange={changeable && setSelected}>
           <Listbox.Button
-            className={`relative w-full py-2 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm ${
+            className={`relative w-full max-w-[200px] py-2 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm ${
               !changeable && "pointer-events-none"
             }`}
           >
@@ -83,13 +83,14 @@ export const MeasurementInput = ({
         </Listbox>
       </div>
       <input
-        className="w-3/5 h-full outline-none px-1 border-b border-black text-[#DB302B]"
+        className="w-1/5 h-full outline-none px-1 border-b border-black text-[#DB302B]"
         type="number"
         {...props}
         step={0.01}
         value={value}
         onChange={onChange}
       />
+      <input className="w-1/5 h-full outline-none border-b border-black text-[#DB302B]" />
     </div>
   );
 };
