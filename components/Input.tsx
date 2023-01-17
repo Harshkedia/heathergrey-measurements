@@ -50,3 +50,5 @@ export const Input = React.forwardRef<InputProps, any>(
     );
   }
 );
+
+Input.displayName = "Input";
