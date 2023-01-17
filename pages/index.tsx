@@ -10,49 +10,52 @@ import { Fragment, useState } from "react";
 import { AddPerson } from "../components/AddPerson";
 import { Select } from "../components/Select";
 
-type Details = {
-  fullName: string;
-  hotelName: string;
-  date: string;
-  location: string;
-  email: string;
-  password: string;
-};
-
 const products = ["jacket", "shirt", "pants"];
 
 export default function Home() {
-  const { register, handleSubmit } = useForm();
   const [step, setStep] = useState<number>(1);
   const [addField, setAddField] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
-  const [people, setPeople] = useState<any>([]);
-  const [person, setPerson] = useState<string>("");
+  const [people, setPeople] = useState<any>({});
+  const [person, setPerson] = useState<string | keyof typeof people>("");
   const [selected, setSelected] = useState<string>(products[1]);
 
-  const index = people.indexOf(people.find((p: any) => p.name === person));
-
   const onSubmit = () => {
-    const addMeasurements = [...people];
-    addMeasurements[index] = {
-      ...addMeasurements[index],
-      measurements: {
-        ...addMeasurements[index].measurements,
-        hipsFinish: Number(addMeasurements[index].measurements.hipsFinish) + 4,
-        chestFinish:
-          Number(addMeasurements[index].measurements.chestFinish) + 5,
-      },
-    };
-    setPeople(addMeasurements);
-    setStep((prev) => (prev + 1) % 3);
+    if (!person) {
+      alert("Add a person first!");
+      return;
+    }
+    if (!people[person].saved) {
+      const addMeasurements = { ...people };
+      addMeasurements[person as keyof typeof addMeasurements] = {
+        ...addMeasurements[person as keyof typeof addMeasurements],
+        saved: true,
+        measurements: {
+          ...addMeasurements[person as keyof typeof addMeasurements]
+            .measurements,
+          hipsFinish:
+            Number(
+              addMeasurements[person as keyof typeof addMeasurements]
+                .measurements.hipsFinish
+            ) + 4,
+          chestFinish:
+            Number(
+              addMeasurements[person as keyof typeof addMeasurements]
+                .measurements.chestFinish
+            ) + 5,
+        },
+      };
+      setPeople(addMeasurements);
+    }
+    setStep(2);
   };
 
   const onPersonSubmit = (data: any) => {
-    if (people.find((p: any) => p.name === data.name)) {
+    if (people[data.name]) {
       alert("Person already exists!");
       return;
     }
-    setPeople([...people, data]);
+    setPeople({ ...people, [data.name]: data });
     setPerson(data.name);
     setOpen(false);
   };
@@ -84,7 +87,7 @@ export default function Home() {
       <div className="h-screen w-screen flex flex-col items-center">
         {step === 2 && (
           <h3 className="text-2xl my-6 text-[#DB302B]">
-            {`${person}'s ${selected} matching Measurements`}
+            {`${String(person)}'s ${selected} matching Measurements`}
           </h3>
         )}
         <div
@@ -94,9 +97,9 @@ export default function Home() {
         >
           {step === 1 ? (
             <div className="w-full h-full py-12 flex gap-8">
-              <div className="w-[40%] h-full">
+              <div className="w-[40%] h-full overflow-y-auto">
                 <div className="flex flex-col gap-y-4">
-                  {people.map((p: any, idx: number) => (
+                  {Object.values(people).map((p: any, idx: number) => (
                     <div
                       className={`px-6 py-8 flex flex-col gap-5 w-full ${
                         person === p.name ? "bg-white" : "bg-gray-100"
@@ -132,7 +135,7 @@ export default function Home() {
                 </div>
                 <form
                   className="bg-white p-6 h-[80%]"
-                  onSubmit={handleSubmit(onSubmit)}
+                  onSubmit={(e: any) => e.preventDefault()}
                 >
                   <div className="flex items-center justify-between pb-2 font-light text-[15px]">
                     <p>
@@ -147,12 +150,11 @@ export default function Home() {
                         <MeasurementInput
                           selec={sel}
                           key={idx}
-                          register={register}
                           changeable={false}
                           required
                           value={
-                            people[index] && people[index].measurements
-                              ? Number(people[index].measurements[sel])
+                            people[person] && people[person].measurements
+                              ? Number(people[person].measurements[sel])
                               : ""
                           }
                           onChange={(e: any) => {
@@ -161,11 +163,15 @@ export default function Home() {
                               return;
                             }
                             if (people) {
-                              const peopleCopy = [...people];
-                              peopleCopy[index] = {
-                                ...peopleCopy[index],
+                              const peopleCopy = { ...people };
+                              peopleCopy[person as keyof typeof peopleCopy] = {
+                                ...peopleCopy[
+                                  person as keyof typeof peopleCopy
+                                ],
                                 measurements: {
-                                  ...peopleCopy[index].measurements,
+                                  ...peopleCopy[
+                                    person as keyof typeof peopleCopy
+                                  ].measurements,
                                   [sel]: Number(e.target.value),
                                 },
                               };
@@ -182,10 +188,36 @@ export default function Home() {
                         <MeasurementInput
                           selec={sel}
                           key={idx}
-                          register={register}
                           changeable
                           people={people}
-                          index={index}
+                          value={
+                            people[person] && people[person].measurements
+                              ? Number(people[person].measurements[sel])
+                              : ""
+                          }
+                          onChange={(e: any) => {
+                            if (!person) {
+                              alert("Add a person first!");
+                              return;
+                            }
+                            if (people) {
+                              const peopleCopy = { ...people };
+                              peopleCopy[person as keyof typeof peopleCopy] = {
+                                ...peopleCopy[
+                                  person as keyof typeof peopleCopy
+                                ],
+                                measurements: {
+                                  ...peopleCopy[
+                                    person as keyof typeof peopleCopy
+                                  ].measurements,
+                                  [sel]: Number(e.target.value),
+                                },
+                              };
+                              setPeople(peopleCopy);
+                            } else {
+                              return null;
+                            }
+                          }}
                         />
                       ))}
                   </div>
@@ -196,7 +228,10 @@ export default function Home() {
                     <AiOutlinePlus className="h-4 w-4" />
                     Add another parameter
                   </p>
-                  <Buttons prevProps={{ className: "hidden" }} />
+                  <Buttons
+                    prevProps={{ className: "hidden" }}
+                    nextProps={{ onClick: () => onSubmit() }}
+                  />
                 </form>
               </div>
               <div className="bg-white flex flex-col gap-6 p-6 !h-full items-center">
@@ -269,14 +304,14 @@ export default function Home() {
                       if (String(row) === "chestFinish") {
                         background = matchChestSize(
                           val,
-                          people[index].measurements.chestFinish
+                          people[person].measurements.chestFinish
                         );
                       }
 
                       Object.keys(measurements.chestFinish).forEach(
                         (k) =>
                           Math.abs(
-                            people[index].measurements.chestFinish -
+                            people[person].measurements.chestFinish -
                               measurements.chestFinish[
                                 k as keyof typeof measurements.chestFinish
                               ]
@@ -286,13 +321,13 @@ export default function Home() {
                       if (colIsHighlighted(col, row, id)) {
                         if (
                           Math.abs(
-                            Number(people[index].measurements[row] - val)
+                            Number(people[person].measurements[row] - val)
                           ) <= 1
                         ) {
                           colBg = "#75C093 #fff";
                         } else if (
                           Math.abs(
-                            Number(people[index].measurements[row] - val)
+                            Number(people[person].measurements[row] - val)
                           ) <= 2
                         ) {
                           colBg = "#FCDA67 #fff";
@@ -301,7 +336,7 @@ export default function Home() {
                         }
 
                         if (
-                          !people[index].measurements[row] ||
+                          !people[person].measurements[row] ||
                           row === "waistFinish"
                         ) {
                           colBg = "rgba(176,205,252,.2) #000";
@@ -322,10 +357,10 @@ export default function Home() {
                           <div className="flex flex-col">
                             {val}
                             {colIsHighlighted(col, row, id) &&
-                              people[index].measurements[row] &&
+                              people[person].measurements[row] &&
                               row !== "waistFinish" && (
                                 <span className="text-[0.7rem]">
-                                  {people[index].measurements[row]} entered
+                                  {people[person].measurements[row]} entered
                                 </span>
                               )}
                           </div>
