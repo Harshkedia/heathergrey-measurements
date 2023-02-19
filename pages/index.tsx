@@ -6,7 +6,7 @@ import {
 import { measurements } from "../static/measurements";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useForm } from "react-hook-form";
-import { Fragment, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { AddPerson } from "../components/AddPerson";
 import { Select } from "../components/Select";
 
@@ -33,15 +33,15 @@ export default function Home() {
         measurements: {
           ...addMeasurements[person as keyof typeof addMeasurements]
             .measurements,
-          hipsFinish:
+          hips:
             Number(
               addMeasurements[person as keyof typeof addMeasurements]
-                .measurements.hipsFinish
+                .measurements.hips
             ) + 4,
-          chestFinish:
+          chest:
             Number(
               addMeasurements[person as keyof typeof addMeasurements]
-                .measurements.chestFinish
+                .measurements.chest
             ) + 5,
         },
       };
@@ -79,12 +79,12 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Heathergrey Collective LLP</title>
+        <title>Heathergrey Measurements</title>
         <meta name="description" content="Fit measurements into sizes" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="h-screen w-screen flex flex-col items-center">
+      <div className="flex flex-col items-center">
         {step === 2 && (
           <h3 className="text-2xl my-6 text-[#DB302B]">
             {`${String(person)}'s ${selected} matching Measurements`}
@@ -147,6 +147,12 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex flex-col gap-y-6 !h-full">
+                <div className="bg-white p-6 h-[20%]">
+                  <p className="pb-2">Enter hotel name</p>
+                  <input className="outline-none border-b border-black text-[#DB302B]" />
+                </div>
+
+
                 <div className="bg-white p-6 h-[20%]">
                   <p className="pb-2">Select the product</p>
                   <Select
@@ -332,19 +338,19 @@ export default function Home() {
                       let colBg = "";
                       let col: string[] = [];
 
-                      if (String(row) === "chestFinish") {
+                      if (String(row) === "chest") {
                         background = matchChestSize(
                           val,
-                          people[person].measurements.chestFinish
+                          people[person].measurements.chest
                         );
                       }
 
-                      Object.keys(measurements.chestFinish).forEach(
+                      Object.keys(measurements.chest).forEach(
                         (k) =>
                           Math.abs(
-                            people[person].measurements.chestFinish -
-                              measurements.chestFinish[
-                                k as keyof typeof measurements.chestFinish
+                            people[person].measurements.chest -
+                              measurements.chest[
+                                k as keyof typeof measurements.chest
                               ]
                           ) <= 1 && col.push(k)
                       );
@@ -368,7 +374,7 @@ export default function Home() {
 
                         if (
                           !people[person].measurements[row] ||
-                          row === "waistFinish"
+                          row === "waist"
                         ) {
                           colBg = "rgba(176,205,252,.2) #000";
                         }
@@ -389,7 +395,7 @@ export default function Home() {
                             {val}
                             {colIsHighlighted(col, row, id) &&
                               people[person].measurements[row] &&
-                              row !== "waistFinish" && (
+                              row !== "waist" && (
                                 <span className="text-[0.7rem]">
                                   {people[person].measurements[row]} entered
                                 </span>

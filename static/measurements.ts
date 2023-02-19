@@ -44,7 +44,7 @@ export const measurements = {
     "54/7XL": 28.5,
     "56/8XL": 29,
   },
-  chestFinish: {
+  chest: {
     "32/2XS": 37,
     "34/XS": 39,
     "36/S": 41,
@@ -59,7 +59,7 @@ export const measurements = {
     "54/7XL": 59,
     "56/8XL": 61,
   },
-  waistFinish: {
+  waist: {
     "32/2XS": 35,
     "34/XS": 37,
     "36/S": 39,
@@ -74,7 +74,7 @@ export const measurements = {
     "54/7XL": 57,
     "56/8XL": 59,
   },
-  hipsFinish: {
+  hips: {
     "32/2XS": 38,
     "34/XS": 40,
     "36/S": 42,

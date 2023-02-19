@@ -7,7 +7,6 @@ export default function Document() {
       <Head />
       <body>
         <Header />
-        <div className="h-[80px]" />
         <Main />
         <NextScript />
       </body>
