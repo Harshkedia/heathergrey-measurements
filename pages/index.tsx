@@ -3,14 +3,12 @@ import {
   MeasurementInput,
   splitAndCapitalize,
 } from "../components/MeasurementInput";
-import { measurements } from "../static/measurements";
+import { loosening, measurements } from "../static/measurements";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useForm } from "react-hook-form";
-import React, { Fragment, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AddPerson } from "../components/AddPerson";
 import { Select } from "../components/Select";
-
-const products = ["jacket", "shirt", "pants"];
+import { supabase } from "../lib/supabaseClient";
 
 export default function Home() {
   const [step, setStep] = useState<number>(1);
@@ -18,34 +16,28 @@ export default function Home() {
   const [open, setOpen] = useState<boolean>(false);
   const [people, setPeople] = useState<any>({});
   const [person, setPerson] = useState<string | keyof typeof people>("");
-  const [selected, setSelected] = useState<string>(products[1]);
+  const [selected, setSelected] =
+    useState<keyof typeof measurements.male>("shirt");
+  const gender: keyof typeof measurements =
+    (people[person] && people[person].gender) ||
+    ("male" as keyof typeof measurements);
 
-  const onSubmit = () => {
-    if (!person) {
-      alert("Add a person first!");
-      return;
-    }
+  const onSubmit = async () => {
     if (!people[person].saved) {
-      const addMeasurements = { ...people };
-      addMeasurements[person as keyof typeof addMeasurements] = {
-        ...addMeasurements[person as keyof typeof addMeasurements],
+      const list = { ...people };
+      list[person] = {
         saved: true,
-        measurements: {
-          ...addMeasurements[person as keyof typeof addMeasurements]
-            .measurements,
-          hips:
-            Number(
-              addMeasurements[person as keyof typeof addMeasurements]
-                .measurements.hips
-            ) + 4,
-          chest:
-            Number(
-              addMeasurements[person as keyof typeof addMeasurements]
-                .measurements.chest
-            ) + 5,
-        },
+        ...list[person],
       };
-      setPeople(addMeasurements);
+      setPeople(list);
+      const { error } = await supabase.from("measurements").insert({
+        hotel: "Heathergrey",
+        employee_name: people[person].name,
+        product: selected,
+        gender,
+        sizes: JSON.stringify(people[person][selected].measurements),
+      });
+      console.log(error);
     }
     setStep(2);
   };
@@ -72,7 +64,10 @@ export default function Home() {
 
   const colIsHighlighted = (col: any, row: any, id: number) => {
     return col.includes(
-      Object.keys(measurements[row as keyof typeof measurements])[id]
+      Object.keys(
+        // @ts-ignore
+        measurements[gender][selected][row as keyof typeof measurements]
+      )[id]
     );
   };
 
@@ -148,15 +143,9 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-y-6 !h-full">
                 <div className="bg-white p-6 h-[20%]">
-                  <p className="pb-2">Enter hotel name</p>
-                  <input className="outline-none border-b border-black text-[#DB302B]" />
-                </div>
-
-
-                <div className="bg-white p-6 h-[20%]">
                   <p className="pb-2">Select the product</p>
                   <Select
-                    items={products}
+                    items={Object.keys(measurements.male)}
                     selected={selected}
                     setSelected={setSelected}
                   />
@@ -181,79 +170,39 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-y-3 max-h-[70%] overflow-y-auto">
-                    {Object.keys(measurements)
-                      .slice(0, 7)
-                      .map((sel, idx) => (
+                    {Object.keys(measurements[gender][selected])
+                      .slice(0, addField + 6)
+                      .map((sel) => (
                         <MeasurementInput
                           selec={sel}
-                          key={idx}
+                          key={sel}
                           changeable={false}
                           required
+                          // disabled={people[person] && people[person].saved}
                           value={
-                            people[person] && people[person].measurements
-                              ? Number(people[person].measurements[sel])
-                              : ""
+                            (people[person] &&
+                              people[person][selected] &&
+                              Number(
+                                people[person][selected].measurements[sel]
+                              )) ||
+                            ""
                           }
                           onChange={(e: any) => {
                             if (!person) {
                               alert("Add a person first!");
                               return;
                             }
-                            if (people) {
-                              const peopleCopy = { ...people };
-                              peopleCopy[person as keyof typeof peopleCopy] = {
-                                ...peopleCopy[
-                                  person as keyof typeof peopleCopy
-                                ],
+                            const list = { ...people };
+                            list[person] = {
+                              ...list[person],
+                              [selected]: {
                                 measurements: {
-                                  ...peopleCopy[
-                                    person as keyof typeof peopleCopy
-                                  ].measurements,
+                                  ...list[person][selected]?.measurements,
                                   [sel]: Number(e.target.value),
                                 },
-                              };
-                              setPeople(peopleCopy);
-                            } else {
-                              return null;
-                            }
-                          }}
-                        />
-                      ))}
-                    {Object.keys(measurements)
-                      .slice(7, addField + 7)
-                      .map((sel, idx) => (
-                        <MeasurementInput
-                          selec={sel}
-                          key={idx}
-                          changeable
-                          people={people}
-                          value={
-                            people[person] && people[person].measurements
-                              ? Number(people[person].measurements[sel])
-                              : ""
-                          }
-                          onChange={(e: any) => {
-                            if (!person) {
-                              alert("Add a person first!");
-                              return;
-                            }
-                            if (people) {
-                              const peopleCopy = { ...people };
-                              peopleCopy[person as keyof typeof peopleCopy] = {
-                                ...peopleCopy[
-                                  person as keyof typeof peopleCopy
-                                ],
-                                measurements: {
-                                  ...peopleCopy[
-                                    person as keyof typeof peopleCopy
-                                  ].measurements,
-                                  [sel]: Number(e.target.value),
-                                },
-                              };
-                              setPeople(peopleCopy);
-                            } else {
-                              return null;
-                            }
+                              },
+                            };
+                            setPeople(list);
                           }}
                         />
                       ))}
@@ -265,10 +214,27 @@ export default function Home() {
                     <AiOutlinePlus className="h-4 w-4" />
                     Add another parameter
                   </p>
-                  <Buttons
-                    prevProps={{ className: "hidden" }}
-                    nextProps={{ onClick: () => onSubmit() }}
-                  />
+                  <div className="flex items-center gap-4">
+                    {people[person] && !people[person].saved ? (
+                      <button
+                        className="bg-[#DB302B] text-white px-6 py-2"
+                        onClick={() => {
+                          if (people[person]) onSubmit();
+                        }}
+                        type="submit"
+                      >
+                        Save
+                      </button>
+                    ) : null}
+                    <button
+                      className="border-[#DB302B] text-black border px-6 py-2"
+                      onClick={() => {
+                        if (people[person]) setStep(2);
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </form>
               </div>
               <div className="bg-white flex flex-col gap-6 p-6 !h-full items-center">
@@ -309,18 +275,20 @@ export default function Home() {
                     >
                       Point of Parameters
                     </th>
-                    {Object.keys(measurements.frontLength).map((col, idx) => (
-                      <th
-                        scope="col"
-                        className="px-2 py-4 border-r border-t border-gray-300"
-                        key={idx}
-                      >
-                        {col}
-                      </th>
-                    ))}
+                    {Object.keys(measurements.male.shirt.frontLength).map(
+                      (col, idx) => (
+                        <th
+                          scope="col"
+                          className="px-2 py-4 border-r border-t border-gray-300"
+                          key={idx}
+                        >
+                          {col}
+                        </th>
+                      )
+                    )}
                   </tr>
                 </thead>
-                {Object.keys(measurements).map((row, idx) => (
+                {Object.keys(measurements[gender][selected]).map((row, idx) => (
                   <tr
                     key={idx}
                     className="text-left border-l border-y border-gray-300 "
@@ -331,79 +299,98 @@ export default function Home() {
                     >
                       {splitAndCapitalize(row)}
                     </th>
-                    {Object.values(
-                      measurements[row as keyof typeof measurements]
-                    ).map((val, id) => {
-                      let background = "";
-                      let colBg = "";
-                      let col: string[] = [];
+                    {/* @ts-ignore */}
+                    {Object.values(measurements[gender][selected][row]).map(
+                      (val, id) => {
+                        let background = "";
+                        let colBg = "";
+                        let col: string[] = [];
 
-                      if (String(row) === "chest") {
-                        background = matchChestSize(
-                          val,
-                          people[person].measurements.chest
+                        if (String(row) === "chestFinish") {
+                          background = matchChestSize(
+                            val as number,
+                            people[person][selected].measurements.chestFinish +
+                              5
+                          );
+                        }
+
+                        let keysOfRow =
+                          measurements[gender][selected].hipsFinish;
+                        let entered = "";
+                        let loose = loosening[gender][selected].hipsFinish;
+
+                        if (selected === "trouser") {
+                          keysOfRow = measurements[gender][selected].hipsFinish;
+                          entered =
+                            people[person][selected].measurements.hipsFinish;
+                          loose = loosening[gender][selected].hipsFinish;
+                        } else {
+                          keysOfRow =
+                            measurements[gender][selected].chestFinish;
+                          entered =
+                            people[person][selected].measurements.chestFinish;
+                          loose = loosening[gender][selected].chestFinish;
+                        }
+
+                        Object.keys(keysOfRow).forEach(
+                          (k) =>
+                            // @ts-ignore
+                            Math.abs(entered + loose - keysOfRow[k]) <= 1 &&
+                            col.push(k)
+                        );
+
+                        if (colIsHighlighted(col, row, id)) {
+                          const difference = Math.abs(
+                            Number(
+                              people[person][selected].measurements[row] +
+                                // @ts-ignore
+                                loosening[gender][selected][row] -
+                                Number(val)
+                            )
+                          );
+
+                          if (difference <= 1) {
+                            colBg = "#75C093 #fff";
+                          } else if (difference <= 2) {
+                            colBg = "#FCDA67 #fff";
+                          } else {
+                            colBg = "#DC5947 #fff";
+                          }
+
+                          if (
+                            !people[person][selected].measurements[row] ||
+                            row === "waist"
+                          ) {
+                            colBg = "rgba(176,205,252,.2) #000";
+                          }
+                        }
+
+                        return (
+                          <td
+                            key={id}
+                            className="border-gray-300 border-r pl-4"
+                            style={{
+                              background: background
+                                ? background
+                                : colBg.split(" ")[0],
+                              color: colBg.split(" ")[1],
+                            }}
+                          >
+                            <div className="flex flex-col">
+                              {val}
+                              {colIsHighlighted(col, row, id) &&
+                                people[person][selected].measurements[row] &&
+                                row !== "waist" && (
+                                  <span className="text-[0.7rem]">
+                                    {people[person][selected].measurements[row]}{" "}
+                                    entered
+                                  </span>
+                                )}
+                            </div>
+                          </td>
                         );
                       }
-
-                      Object.keys(measurements.chest).forEach(
-                        (k) =>
-                          Math.abs(
-                            people[person].measurements.chest -
-                              measurements.chest[
-                                k as keyof typeof measurements.chest
-                              ]
-                          ) <= 1 && col.push(k)
-                      );
-
-                      if (colIsHighlighted(col, row, id)) {
-                        if (
-                          Math.abs(
-                            Number(people[person].measurements[row] - val)
-                          ) <= 1
-                        ) {
-                          colBg = "#75C093 #fff";
-                        } else if (
-                          Math.abs(
-                            Number(people[person].measurements[row] - val)
-                          ) <= 2
-                        ) {
-                          colBg = "#FCDA67 #fff";
-                        } else {
-                          colBg = "#DC5947 #fff";
-                        }
-
-                        if (
-                          !people[person].measurements[row] ||
-                          row === "waist"
-                        ) {
-                          colBg = "rgba(176,205,252,.2) #000";
-                        }
-                      }
-
-                      return (
-                        <td
-                          key={id}
-                          className="border-gray-300 border-r pl-4"
-                          style={{
-                            background: background
-                              ? background
-                              : colBg.split(" ")[0],
-                            color: colBg.split(" ")[1],
-                          }}
-                        >
-                          <div className="flex flex-col">
-                            {val}
-                            {colIsHighlighted(col, row, id) &&
-                              people[person].measurements[row] &&
-                              row !== "waist" && (
-                                <span className="text-[0.7rem]">
-                                  {people[person].measurements[row]} entered
-                                </span>
-                              )}
-                          </div>
-                        </td>
-                      );
-                    })}
+                    )}
                   </tr>
                 ))}
               </table>
@@ -436,6 +423,7 @@ const Buttons = ({ prevProps, nextProps }: any) => (
     >
       Prev
     </button>
+
     <button
       className="bg-[#DB302B] text-white px-6 py-2"
       {...nextProps}
@@ -445,9 +433,3 @@ const Buttons = ({ prevProps, nextProps }: any) => (
     </button>
   </div>
 );
-
-// Full Sleeve measurement
-// Collar diff should only be +0.5
-// Sleeve will be +1
-// Size to use input
-// Scale down table

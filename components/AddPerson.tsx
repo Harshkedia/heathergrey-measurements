@@ -1,8 +1,9 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BsDisplay, BsGenderMale, BsPerson } from "react-icons/bs";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
+import { measurements } from "../static/measurements";
 import { Input } from "./Input";
 
 export const AddPerson = ({ open, onClose, onSubmit }: any) => {
@@ -63,12 +64,20 @@ export const AddPerson = ({ open, onClose, onSubmit }: any) => {
                     {...register("designation")}
                     width="100%"
                   />
-                  <Input
-                    Icon={BsGenderMale}
-                    placeholder="Gender"
-                    {...register("gender")}
-                    width="100%"
-                  />
+                  <div className="border bg-[#F8F8F8] flex items-center gap-3 px-4 border-[#d1d5db] focus:border-[#DB302B] h-[54px]">
+                    <BsGenderMale className="w-6 h-6" />
+                    <div className="bg-gray-200 h-1/2 w-[3px] rounded-lg" />
+                    <select
+                      className="!outline-none capitalize bg-transparent grow"
+                      {...register("gender")}
+                    >
+                      {Object.keys(measurements).map((v, i) => (
+                        <option key={i} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <button
                     className="py-2 bg-[#DB302B] text-white mx-40"
                     type="submit"

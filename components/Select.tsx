@@ -1,13 +1,14 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { BsCheck2, BsChevronDown } from "react-icons/bs";
+import { splitAndCapitalize } from "./MeasurementInput";
 
 export const Select = ({ items, selected, setSelected }: any) => (
   <div className="w-[140px] relative">
     <Listbox value={selected} onChange={setSelected}>
       <Listbox.Button className="relative border-gray-200 border-b w-full bg-white py-1 pr-3 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-        <span className="block truncate text-[#DB302B] capitalize text-[16px]">
-          {selected}
+        <span className="block truncate text-[#DB302B] text-[16px]">
+          {splitAndCapitalize(selected)}
         </span>
         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <BsChevronDown
@@ -40,7 +41,7 @@ export const Select = ({ items, selected, setSelected }: any) => (
                       selected ? "text-[#DB302B]" : "font-normal"
                     }`}
                   >
-                    {parameter}
+                    {splitAndCapitalize(parameter)}
                   </span>
                   {selected ? (
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#DB302B]">

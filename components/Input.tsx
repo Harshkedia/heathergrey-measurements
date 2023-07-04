@@ -26,7 +26,7 @@ export const Input = React.forwardRef<InputProps, any>(
 
     return (
       <div
-        className={`border bg-[#F8F8F8] flex items-center gap-3 px-4 focus:border-[#DB302B]`}
+        className={`border bg-[#F8F8F8] flex items-center gap-3 px-4`}
         style={{
           height,
           width,
