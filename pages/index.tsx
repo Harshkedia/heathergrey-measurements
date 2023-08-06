@@ -5,22 +5,37 @@ import {
 } from "../components/MeasurementInput";
 import { loosening, measurements } from "../static/measurements";
 import { AiOutlinePlus } from "react-icons/ai";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AddPerson } from "../components/AddPerson";
 import { Select } from "../components/Select";
 import { supabase } from "../lib/supabaseClient";
+import { useRouter } from "next/router";
+import { Buttons } from "../components/Buttons";
+import Link from "next/link";
 
-export default function Home() {
+export default function Home({ data }: any) {
   const [step, setStep] = useState<number>(1);
   const [addField, setAddField] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
-  const [people, setPeople] = useState<any>({});
-  const [person, setPerson] = useState<string | keyof typeof people>("");
+  const [person, setPerson] = useState<string | keyof typeof people>(
+    data[0] ? JSON.parse(data[0].person).name : ""
+  );
+  const [people, setPeople] = useState<any>(
+    data.reduce(
+      (a: any, v: any) => ({
+        ...a,
+        [JSON.parse(v.person).name]: JSON.parse(v.person),
+      }),
+      {}
+    )
+  );
   const [selected, setSelected] =
     useState<keyof typeof measurements.male>("shirt");
   const gender: keyof typeof measurements =
     (people[person] && people[person].gender) ||
     ("male" as keyof typeof measurements);
+  const router = useRouter();
+  const { brandname, storeName } = router.query;
 
   const onSubmit = async () => {
     if (!people[person].saved) {
@@ -32,10 +47,7 @@ export default function Home() {
       setPeople(list);
       const { error } = await supabase.from("measurements").insert({
         hotel: "Heathergrey",
-        employee_name: people[person].name,
-        product: selected,
-        gender,
-        sizes: JSON.stringify(people[person][selected].measurements),
+        person: JSON.stringify(people[person]),
       });
       console.log(error);
     }
@@ -71,6 +83,22 @@ export default function Home() {
     );
   };
 
+  if (!brandname || !storeName)
+    return (
+      <div className="h-[80vh] !w-screen flex items-center justify-center ">
+        <span>
+          Please{" "}
+          <Link
+            href="https://heathergreycollective.com/store"
+            className="text-[#DB302B]"
+          >
+            login
+          </Link>{" "}
+          first.
+        </span>
+      </div>
+    );
+
   return (
     <>
       <Head>
@@ -80,11 +108,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex flex-col items-center">
-        {step === 2 && (
-          <h3 className="text-2xl my-6 text-[#DB302B]">
-            {`${String(person)}'s ${selected} matching Measurements`}
-          </h3>
-        )}
         <div
           className={`${
             step === 2 ? "h-full w-[95%] pb-2" : "w-[85%] pb-8"
@@ -266,6 +289,9 @@ export default function Home() {
           ) : null}
           {step === 2 ? (
             <>
+              <h3 className="text-2xl my-6 text-[#DB302B]">
+                {`${String(person)}'s ${selected} matching Measurements`}
+              </h3>
               <table className="w-[100rem] border border-gray-300">
                 <thead>
                   <tr>
@@ -291,7 +317,7 @@ export default function Home() {
                 {Object.keys(measurements[gender][selected]).map((row, idx) => (
                   <tr
                     key={idx}
-                    className="text-left border-l border-y border-gray-300 "
+                    className="text-left border-l border-y border-gray-300"
                   >
                     <th
                       scope="row"
@@ -415,21 +441,17 @@ export default function Home() {
   );
 }
 
-const Buttons = ({ prevProps, nextProps }: any) => (
-  <div className="flex justify-between items-center w-full">
-    <button
-      className="border border-gray-200 px-6 py-2 bg-[#fcfcfc]"
-      {...prevProps}
-    >
-      Prev
-    </button>
-
-    <button
-      className="bg-[#DB302B] text-white px-6 py-2"
-      {...nextProps}
-      type="submit"
-    >
-      Next
-    </button>
-  </div>
-);
+export async function getServerSideProps(context: any) {
+  const fetchURL = `${
+    context.req.headers["x-forwarded-proto"] || context.req.connection.encrypted
+      ? "https"
+      : "http"
+  }://${context.req.headers.host}/api/getMeasurements${context.req.url}`;
+  const res = await fetch(fetchURL);
+  const { data } = await res.json();
+  return {
+    props: {
+      data,
+    },
+  };
+}
