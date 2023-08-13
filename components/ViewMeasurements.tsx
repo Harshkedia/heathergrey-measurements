@@ -1,14 +1,22 @@
-import { measurements, loosening } from "../static/measurements";
+import { loosening, measurements } from "../static/measurements";
 import { Buttons } from "./Buttons";
 import { splitAndCapitalize } from "./MeasurementInput";
 
-export const Measurements = ({
+export const ViewMeasurements = ({
   setStep,
-  people,
-  selected,
   person,
+  selected,
+  people,
   gender,
-}: any) => {
+  ...props
+}: {
+  setStep: (s: number) => void;
+  selected: string | keyof typeof measurements;
+  people: any;
+  person: string | keyof typeof people;
+  gender: keyof typeof measurements;
+  [id: string]: any;
+}) => {
   const matchChestSize = (standard: number, input: number) => {
     if (Math.abs(input - standard) <= 1) {
       return "#75C093";
@@ -21,14 +29,15 @@ export const Measurements = ({
 
   const colIsHighlighted = (col: any, row: any, id: number) => {
     return col.includes(
-      Object.keys(
-        // @ts-ignore
-        measurements[gender][selected][row as keyof typeof measurements]
-      )[id]
+      Object.keys(props.measurements[gender][selected][row])[id]
     );
   };
+
   return (
     <>
+      <h3 className="text-2xl my-6 text-[#DB302B]">
+        {`${String(person)}'s ${selected} matching Measurements`}
+      </h3>
       <table className="w-[100rem] border border-gray-300">
         <thead>
           <tr>
@@ -48,11 +57,8 @@ export const Measurements = ({
             )}
           </tr>
         </thead>
-        {Object.keys(measurements[gender][selected]).map((row, idx) => (
-          <tr
-            key={idx}
-            className="text-left border-l border-y border-gray-300 "
-          >
+        {Object.keys(props.measurements[gender][selected]).map((row, idx) => (
+          <tr key={idx} className="text-left border-l border-y border-gray-300">
             <th
               scope="row"
               className="font-normal py-4 pl-4 border-r border-gray-300"
@@ -73,18 +79,18 @@ export const Measurements = ({
                   );
                 }
 
-                let keysOfRow = measurements[gender][selected].hipsFinish;
+                let keysOfRow = props.measurements[gender][selected].hipsFinish;
                 let entered = "";
-                let loose = loosening[gender][selected].hipsFinish;
+                let loose = props.loosening[gender][selected].hipsFinish;
 
                 if (selected === "trouser") {
                   keysOfRow = measurements[gender][selected].hipsFinish;
                   entered = people[person][selected].measurements.hipsFinish;
                   loose = loosening[gender][selected].hipsFinish;
                 } else {
-                  keysOfRow = measurements[gender][selected].chestFinish;
+                  keysOfRow = props.measurements[gender][selected].chestFinish;
                   entered = people[person][selected].measurements.chestFinish;
-                  loose = loosening[gender][selected].chestFinish;
+                  loose = props.loosening[gender][selected].chestFinish;
                 }
 
                 Object.keys(keysOfRow).forEach(
