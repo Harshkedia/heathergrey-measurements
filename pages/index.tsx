@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { ViewMeasurements } from "../components/ViewMeasurements";
 import { EnterMeasurements } from "../components/EnterMeasurements";
+import { Header } from "../components/Header";
 
 export default function Home({ data }: any) {
   const [step, setStep] = useState<number>(1);
@@ -93,6 +94,7 @@ export default function Home({ data }: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex flex-col items-center">
+        <Header />
         <div
           className={`${
             step === 2 ? "h-full w-[95%] pb-2" : "w-[85%] pb-8"
