@@ -33,11 +33,11 @@ export default function Home({ data }: any) {
   const { brandname, storeName } = router.query;
 
   const onSubmit = async () => {
-    if (!people[person].saved) {
+    if (!people[person][selected].saved) {
       const list = { ...people };
-      list[person] = {
+      list[person][selected] = {
         saved: true,
-        ...list[person],
+        ...list[person][selected],
       };
       setPeople(list);
       const { error } = await supabase.from("measurements").insert({

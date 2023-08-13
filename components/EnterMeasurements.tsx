@@ -108,7 +108,7 @@ export const EnterMeasurements = (props: any) => {
             Add another parameter
           </p>
           <div className="flex items-center gap-4">
-            {!props.people?.[props.person]?.saved ? (
+            {!props.people?.[props.person]?.[props.selected]?.saved ? (
               <button
                 className="bg-[#DB302B] text-white px-6 py-2"
                 onClick={() => {
@@ -129,7 +129,6 @@ export const EnterMeasurements = (props: any) => {
             </button>
           </div>
         </form>
-        aA
       </div>
       <MeasurementsGuidlineSection />
     </div>
