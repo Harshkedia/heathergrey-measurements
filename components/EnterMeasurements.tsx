@@ -7,20 +7,22 @@ export const EnterMeasurements = (props: any) => {
   return (
     <div className="w-full h-full pt-8 flex gap-8">
       <div className="flex flex-col w-[40%] gap-6">
-        <div className="w-full h-[48%]">
-          <div className="flex flex-col gap-y-4 overflow-y-auto max-h-[90%]">
+        <div className="w-full">
+          <div className="flex flex-col gap-y-4 overflow-y-auto !max-h-[80vh]">
             {Object.values(props.people).map((p: any, idx: number) => (
               <div
-                className={`px-6 py-8 flex flex-col gap-5 w-full ${
+                className={`px-6 flex flex-col gap-5 w-full ${
                   props.person === p.name ? "bg-white" : "bg-gray-100"
                 }`}
                 key={idx}
                 onClick={() => props.setPerson(p.name)}
               >
-                <h3 className="text-xl font-light text-[#DB302B]">{p.name}</h3>
+                <h3 className="text-xl font-light text-[#DB302B] pt-6">
+                  {p.name}
+                </h3>
                 <p className="uppercase text-sm">{p.department}</p>
                 <p className="uppercase text-sm">{p.designation}</p>
-                <p className="uppercase text-sm">{p.gender}</p>
+                <p className="uppercase text-sm pb-6">{p.gender}</p>
               </div>
             ))}
           </div>
@@ -32,7 +34,7 @@ export const EnterMeasurements = (props: any) => {
             Add a person
           </p>
         </div>
-        <AIUploadSection />
+        {/* <AIUploadSection /> */}
       </div>
       <div className="flex flex-col gap-y-6 !h-full">
         <div className="bg-white p-6 h-[20%]">

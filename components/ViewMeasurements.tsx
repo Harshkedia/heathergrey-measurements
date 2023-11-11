@@ -80,14 +80,10 @@ export const ViewMeasurements = ({
                 }
 
                 let keysOfRow = props.measurements[gender][selected].hipsFinish;
-                let entered = "";
+                let entered = people[person][selected].measurements.hipsFinish;
                 let loose = props.loosening[gender][selected].hipsFinish;
 
-                if (selected === "trouser") {
-                  keysOfRow = measurements[gender][selected].hipsFinish;
-                  entered = people[person][selected].measurements.hipsFinish;
-                  loose = loosening[gender][selected].hipsFinish;
-                } else {
+                if (selected !== "trouser") {
                   keysOfRow = props.measurements[gender][selected].chestFinish;
                   entered = people[person][selected].measurements.chestFinish;
                   loose = props.loosening[gender][selected].chestFinish;
@@ -95,18 +91,14 @@ export const ViewMeasurements = ({
 
                 Object.keys(keysOfRow).forEach(
                   (k) =>
-                    // @ts-ignore
                     Math.abs(entered + loose - keysOfRow[k]) <= 1 && col.push(k)
                 );
 
                 if (colIsHighlighted(col, row, id)) {
                   const difference = Math.abs(
-                    Number(
-                      people[person][selected].measurements[row] +
-                        // @ts-ignore
-                        loosening[gender][selected][row] -
-                        Number(val)
-                    )
+                    people[person][selected].measurements[row] +
+                      (props.loosening[gender][selected][row] || 0) -
+                      Number(val)
                   );
 
                   if (difference <= 1) {
@@ -117,10 +109,7 @@ export const ViewMeasurements = ({
                     colBg = "#DC5947 #fff";
                   }
 
-                  if (
-                    !people[person][selected].measurements[row] ||
-                    row === "waist"
-                  ) {
+                  if (!people[person][selected].measurements[row]) {
                     colBg = "rgba(176,205,252,.2) #000";
                   }
                 }

@@ -911,3 +911,10 @@ export const loosening = {
     },
   },
 };
+
+// +-0.5 inch looseing fine for shoulder
+// waist +-2 inches
+// sleeve length +1 inch
+// frontlength: +1 inch
+// collor: -+0.5inch
+// bottom 1 inch diff is yellow
